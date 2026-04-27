@@ -1,8 +1,14 @@
 import SwiftUI
+import FirebaseCore
 
 @main
 struct AuthAppApp: App {
-    @State private var appState = AppState()
+    @State private var appState: AppState
+
+    init() {
+        FirebaseApp.configure()
+        _appState = State(initialValue: AppState())
+    }
 
     var body: some Scene {
         WindowGroup {

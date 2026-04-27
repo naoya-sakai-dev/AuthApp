@@ -18,15 +18,14 @@ final class LoginViewModel {
         isLoading = true
         authError = nil
 
-        // ダミー認証のため同期処理（実務では async/await を使用）
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [self] in
+        Task { @MainActor in
             do {
-                let user = try authService.login(email: email, password: password)
+                let user = try await authService.login(email: email, password: password)
                 appState.login(user: user)
             } catch let error as AuthError {
                 authError = error.message
             } catch {
-                authError = "予期しないエラーが発生しました"
+                authError = AuthError.unknown.message
             }
             isLoading = false
         }

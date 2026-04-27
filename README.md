@@ -1,24 +1,22 @@
 # AuthApp
 
-iOS向けの認証フロー学習用アプリです。ログイン・ログアウト・セッション管理の基本的な仕組みをSwiftUI + MVVMアーキテクチャで実装しています。
+iOS向けの認証フロー学習用アプリです。ログイン・ログアウト・セッション管理の基本的な仕組みをSwiftUI + MVVM + Firebase Authenticationで実装しています。
 
-## 現在の仕様
-
-### 機能概要
+## 機能概要
 
 | 機能 | 内容 |
 |------|------|
-| ログイン | メールアドレス・パスワードによるフォーム認証 |
+| ログイン | メールアドレス・パスワードによるフォーム認証（Firebase Authentication） |
 | バリデーション | 入力値のリアルタイムエラー表示 |
-| セッション管理 | Keychainへのトークン保存・アプリ再起動後の自動ログイン |
-| ログアウト | Keychainからのトークン削除とセッションリセット |
+| セッション管理 | Firebaseによるトークン自動管理・アプリ再起動後の自動ログイン |
+| ログアウト | Firebaseセッションの破棄とセッションリセット |
 
-### 画面構成
+## 画面構成
 
 - **LoginView** — メールアドレス・パスワード入力フォーム、ログインボタン
 - **HomeView** — ログインユーザーのメールアドレス表示、ログアウトボタン
 
-### アーキテクチャ
+## アーキテクチャ
 
 ```
 AuthApp/
@@ -34,39 +32,36 @@ AuthApp/
 │   ├── User.swift               # ユーザーモデル
 │   └── AuthError.swift          # 認証エラー定義
 ├── Services/
-│   ├── AuthService.swift        # 認証ロジック（現在はダミー実装）
-│   └── KeychainService.swift    # Keychain読み書き
+│   ├── AuthService.swift        # Firebase Authenticationによる認証ロジック
+│   └── KeychainService.swift    # Keychain読み書き（旧実装・参照用）
 └── Constants/
-    └── AuthConstants.swift      # ダミー認証情報・Keychainキー定数
+    └── AuthConstants.swift      # 定数管理
 ```
 
-### 現在の認証方式（ダミー実装）
-
-現在の`AuthService`は固定の資格情報と照合するダミー実装です。
-
-| 項目 | 値 |
-|------|----|
-| メールアドレス | `user@example.com` |
-| パスワード | `password123` |
-
-### 入力バリデーション
+## 入力バリデーション
 
 - メールアドレス未入力
 - メールアドレスの形式不正（正規表現チェック）
 - パスワード未入力
 
+## セキュリティ設計
+
+| 項目 | 対応内容 |
+|------|---------|
+| 認証 | Firebase Authentication（メール/パスワード） |
+| トークン管理 | Firebaseによる自動管理・自動更新 |
+| セッション永続化 | Firebase内部でのセキュアな保存 |
+| 設定ファイル | `GoogleService-Info.plist` は `.gitignore` で除外 |
+
 ## 今後の実装予定
 
-現在はダミー認証ですが、以下の実際の認証機能への置き換えを予定しています。
-
-- [ ] バックエンドAPIとの通信による実認証（async/await）
-- [ ] JWTトークンの取得・保存・更新処理
 - [ ] 新規ユーザー登録フロー
 - [ ] パスワードリセットフロー
-- [ ] Sign in with Apple / Googleによるソーシャル認証
+- [ ] Sign in with Apple
 
 ## 動作環境
 
 - iOS 17.0以上
 - Xcode 15以上
 - Swift 5.9以上
+- Firebase iOS SDK（FirebaseAuth）

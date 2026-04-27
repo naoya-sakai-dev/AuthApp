@@ -1,12 +1,22 @@
 import Foundation
+import FirebaseAuth
 
 struct AuthService {
-    func login(email: String, password: String) throws -> User {
-        // ダミー認証：固定の資格情報と照合
-        guard email == AuthConstants.dummyEmail,
-              password == AuthConstants.dummyPassword else {
-            throw AuthError.invalidCredentials
+    func login(email: String, password: String) async throws -> User {
+        do {
+            let result = try await Auth.auth().signIn(withEmail: email, password: password)
+            return User(email: result.user.email ?? "")
+        } catch let error as NSError {
+            switch AuthErrorCode(rawValue: error.code) {
+            case .wrongPassword, .userNotFound, .invalidEmail, .invalidCredential:
+                throw AuthError.invalidCredentials
+            default:
+                throw AuthError.unknown
+            }
         }
-        return User(email: email)
+    }
+
+    func logout() throws {
+        try Auth.auth().signOut()
     }
 }
